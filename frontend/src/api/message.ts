@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStore } from '../state/userStore';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL + '/api/message';
 
 export const fetchMessagesApi = async ({ chatId, token }: { chatId: string; token: string }) => {
   const { data } = await axios.get(`${API_URL}/${chatId}`, {

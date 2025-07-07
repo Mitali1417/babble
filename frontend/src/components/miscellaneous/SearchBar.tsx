@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
@@ -11,7 +12,6 @@ import { Button } from "../ui/button";
 
 function SearchBar() {
   const [search, setSearch] = useState("");
-  // const user = useUserStore((s) => s.user);
   const { setSelectedChat } = useChatStore();
 
   const {
@@ -46,7 +46,7 @@ function SearchBar() {
       <Dialog
         onOpenChange={(open) => {
           if (open && !search.trim()) {
-            handleSearch(); // fetch all users when dialog opens
+            handleSearch();
           }
         }}
       >

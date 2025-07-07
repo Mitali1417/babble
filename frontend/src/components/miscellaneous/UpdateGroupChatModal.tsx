@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { toast } from "sonner";
 import { Search, Settings, X, Crown } from "lucide-react";
@@ -9,7 +10,11 @@ import UserListItem from "../../pages/userAvatar/UserListItem";
 import { useSearchUsersQuery } from "../../api/chat";
 import { useChatStore } from "../../state/chatStore";
 import { useUserStore } from "../../state/userStore";
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useRenameGroupMutation,
+  useAddUserMutation,
+  useRemoveUserMutation,
+} from "@/api/groupChat";
 
 interface UserBadgeItemProps {
   user: any;
@@ -39,49 +44,24 @@ interface UpdateGroupChatModalProps {
 
 const UpdateGroupChatModal = ({
   fetchMessages,
-  fetchAgain,
   setFetchAgain,
   children,
 }: UpdateGroupChatModalProps) => {
   const [open, setOpen] = useState(false);
   const [groupChatName, setGroupChatName] = useState("");
   const [search, setSearch] = useState("");
-  const [renameloading, setRenameLoading] = useState(false);
 
   const user = useUserStore((s) => s.user);
   const { selectedChat, setSelectedChat } = useChatStore();
 
-  const API_URL = import.meta.env.VITE_API_URL;
 
-  // Use the new API hook
   const { data: searchResult = [], isLoading } = useSearchUsersQuery(search);
 
-  const queryClient = useQueryClient();
-  const renameGroupMutation = useMutation({
-    mutationFn: async ({ chatId, chatName, token }) => {
-      const response = await fetch(`${API_URL}/api/chat/rename`, {
-        method: 'PUT',
-        headers: {
-          'Content-type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ chatId, chatName }),
-      });
-      if (!response.ok) throw new Error('Failed to rename group');
-      return response.json();
-    },
-    onSuccess: (data) => {
-      setSelectedChat(data);
-      setFetchAgain(!fetchAgain);
-      toast.success('Group name updated successfully');
-      queryClient.invalidateQueries(['chats']);
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Rename failed');
-    },
-  });
+  const renameGroupMutation = useRenameGroupMutation({ setSelectedChat, setFetchAgain, toast });
+  const addUserMutation = useAddUserMutation({ setSelectedChat, setFetchAgain, toast });
+  const removeUserMutation = useRemoveUserMutation({ setSelectedChat, setFetchAgain, fetchMessages, toast, userId: user?._id });
 
-  const handleAddUser = async (user1: any) => {
+  const handleAddUser = (user1: any) => {
     if (selectedChat?.users.find((u: any) => u._id === user1._id)) {
       toast.error("User already in group!");
       return;
@@ -90,66 +70,38 @@ const UpdateGroupChatModal = ({
       toast.error("Only admins can add someone!");
       return;
     }
-    try {
-      const response = await fetch(`${API_URL}/api/chat/groupadd`, {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${user?.token}`,
-        },
-        body: JSON.stringify({
-          chatId: selectedChat?._id,
-          userId: user1._id,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to add user");
-      }
-
-      const data = await response.json();
-      setSelectedChat(data);
-      setFetchAgain(!fetchAgain);
-      toast.success("User added successfully");
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Add user failed");
-    }
+    if (!selectedChat?._id || !user?.token) return;
+    addUserMutation.mutate({
+      chatId: selectedChat._id,
+      userId: user1._id,
+      token: user.token,
+    });
   };
 
-  const handleRemove = async (user1: any) => {
+  const handleRemove = (user1: any) => {
     if (selectedChat?.groupAdmin._id !== user?._id && user1._id !== user?._id) {
       toast.error("Only admins can remove someone!");
       return;
     }
-    try {
-      const response = await fetch(`${API_URL}/api/chat/groupremove`, {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${user?.token}`,
-        },
-        body: JSON.stringify({
-          chatId: selectedChat?._id,
-          userId: user1._id,
-        }),
-      });
+    if (!selectedChat?._id || !user?.token) return;
+    removeUserMutation.mutate({
+      chatId: selectedChat._id,
+      userId: user1._id,
+      token: user.token,
+    });
+  };
 
-      if (!response.ok) {
-        throw new Error("Failed to remove user");
-      }
-
-      const data = await response.json();
-      user1._id === user?._id ? setSelectedChat(null) : setSelectedChat(data);
-      setFetchAgain(!fetchAgain);
-      fetchMessages();
-      toast.success(
-        user1._id === user?._id
-          ? "Left group successfully"
-          : "User removed successfully"
-      );
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Remove user failed");
+  const handleRename = () => {
+    if (!groupChatName.trim()) {
+      toast.warning("Please enter a group name");
+      return;
     }
+    if (!selectedChat?._id || !user?.token) return;
+    renameGroupMutation.mutate({
+      chatId: selectedChat._id,
+      chatName: groupChatName,
+      token: user.token,
+    });
   };
 
   if (!selectedChat) return null;
@@ -190,9 +142,9 @@ const UpdateGroupChatModal = ({
                 <Button
                   size={"sm"}
                   onClick={handleRename}
-                  disabled={renameloading}
+                  disabled={renameGroupMutation.isPending}
                 >
-                  {renameloading ? "Updating..." : "Update"}
+                  {renameGroupMutation.isPending ? "Updating..." : "Update"}
                 </Button>
               </div>
             </div>

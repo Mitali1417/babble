@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import UserListItem from "../../pages/userAvatar/UserListItem";
 import { useSearchUsersQuery } from "../../api/chat";
 import { useUserStore } from "../../state/userStore";
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCreateGroupChatMutation } from "@/api/groupChat";
 
 interface UserBadgeItemProps {
   user: any;
@@ -58,33 +58,15 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
     setSelectedUsers(selectedUsers.filter((sel) => sel._id !== delUser._id));
   };
 
-  const API_URL = import.meta.env.VITE_API_URL;
-  const queryClient = useQueryClient();
-  const createGroupMutation = useMutation({
-    mutationFn: async ({ groupChatName, selectedUsers, token }) => {
-      const response = await fetch(`${API_URL}/api/chat/group`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: groupChatName,
-          users: JSON.stringify(selectedUsers.map((u) => u._id)),
-        }),
-      });
-      if (!response.ok) throw new Error('Failed to create group chat');
-      return response.json();
-    },
-    onSuccess: (data) => {
+  const createGroupMutation = useCreateGroupChatMutation({
+    onSuccess: () => {
       setOpen(false);
       toast.success('Group chat created successfully!');
       setGroupChatName('');
       setSelectedUsers([]);
       setSearch('');
-      queryClient.invalidateQueries(['chats']);
     },
-    onError: (error) => {
+    onError: (error: { message: any; }) => {
       toast.error(error.message || 'Failed to create group chat');
     },
   });
@@ -99,7 +81,7 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
       return;
     }
     try {
-      createGroupMutation.mutate({ groupChatName, selectedUsers, token: user?.token });
+      createGroupMutation.mutate({ groupChatName, selectedUsers, token: user?.token ?? "" });
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || "Failed to create group chat"

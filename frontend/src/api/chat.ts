@@ -2,7 +2,8 @@ import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserStore } from '../state/userStore';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL + '/api/chat';
+const USER_API_URL = import.meta.env.VITE_API_URL + '/api/user';
 
 export const fetchChatsApi = async (token: string) => {
   const { data } = await axios.get(API_URL, {
@@ -21,7 +22,7 @@ export const createChatApi = async ({ userId, token }: { userId: string; token: 
 };
 
 export const searchUsersApi = async ({ search, token }: { search: string; token: string }) => {
-  const { data } = await axios.get(`${API_URL}/api/user?search=${search}`, {
+  const { data } = await axios.get(`${USER_API_URL}?search=${search}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return data;

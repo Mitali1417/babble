@@ -23,19 +23,34 @@ interface MyChatsProps {
 const MyChats = ({ onClose }: MyChatsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const user = useUserStore((s) => s.user);
-  if (!user) return null; // or a loading spinner if preferred
   const { selectedChat, setSelectedChat, unreadCounts, clearUnread } =
     useChatStore();
 
   const { data: chats, isLoading, error } = useChatsQuery();
 
-  const filteredChats = chats?.filter((chat: any) => {
-    if (!searchTerm) return true;
-    const chatName = chat.isGroupChat
-      ? chat.chatName
-      : getSender(user, chat.users);
-    return chatName.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+  // const filteredChats = chats?.filter((chat: any) => {
+  //   if (!searchTerm) return true;
+  //   const chatName = chat.isGroupChat
+  //     ? chat.chatName
+  //     : user
+  //     ? getSender(user, chat.users)
+  //     : "";
+  //   return chatName.toLowerCase().includes(searchTerm.toLowerCase());
+  // });
+
+
+  const filteredChats = Array.isArray(chats)
+  ? chats.filter((chat: any) => {
+      if (!searchTerm) return true;
+      const chatName = chat.isGroupChat
+        ? chat.chatName
+        : user
+        ? getSender(user, chat.users)
+        : "";
+      return chatName.toLowerCase().includes(searchTerm.toLowerCase());
+    })
+  : [];
+
 
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -78,6 +93,9 @@ const MyChats = ({ onClose }: MyChatsProps) => {
       </Card>
     );
   }
+
+  if (!user) return null; 
+
 
   return (
     <Card className="h-full flex flex-col py-0">

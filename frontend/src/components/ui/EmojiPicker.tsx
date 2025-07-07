@@ -27,6 +27,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect }) => {
       <PopoverContent align="end" className="p-0 w-auto">
         <Picker
           set="apple"
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onSelect={(emoji: any) => {
             onSelect(emoji.native);
             setOpen(false);

@@ -60,7 +60,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
   const { requestPermission, showNotification } = useNotifications();
   const { backgroundImage, isBgLoaded } = useBgStore();
 
-  // Use the new API hooks
   const { data: messages = [], isLoading } = useMessagesQuery(
     selectedChat?._id || ""
   );
@@ -182,9 +181,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
     : null;
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="relative flex flex-col h-full bg-background">
       <div
-        className={`fixed inset-0 -z-10 transition-opacity duration-700 ease-in-out ${
+        className={`absolute inset-0 z-0 transition-opacity duration-700 ease-in-out ${
           isBgLoaded ? "opacity-40 dark:opacity-50" : "opacity-0"
         }`}
         style={{
@@ -197,7 +196,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       <audio ref={audioRef} src="/message.mp3" preload="auto" />
 
       {/* Mobile-Optimized Chat Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-card/95 backdrop-blur-sm">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-card/95 backdrop-blur-sm z-10">
         {/* Left Section - Back Button + Avatar + Info */}
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           <Button
@@ -279,7 +278,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-hidden bg-background/50">
+      <div className="flex-1 overflow-hidden bg-background/50 z-10">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="flex flex-col items-center space-y-4">
@@ -296,7 +295,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
 
       {/* Typing Indicator */}
       {istyping && (
-        <div className="flex items-center space-x-3 px-4 py-3 bg-muted/30 border-t">
+        <div className="flex items-center space-x-3 px-4 py-3 bg-muted/30 border-t z-10">
           <div className="bg-white rounded-full p-2 shadow-sm">
             <Lottie options={defaultOptions} width={24} height={12} />
           </div>
@@ -307,7 +306,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       )}
 
       {/* Mobile-Optimized Message Input */}
-      <div className="p-4 border-t bg-card/95 backdrop-blur-sm">
+      <div className="p-4 border-t bg-card/95 backdrop-blur-sm z-10">
         <div className="flex items-end space-x-3">
           {/* Emoji Picker */}
           <div className="pb-2">

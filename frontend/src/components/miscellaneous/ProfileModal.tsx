@@ -15,7 +15,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { toast } from "sonner";
 import { api } from "../../utils/api";
 import { useUserStore } from "../../state/userStore";
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useUpdateProfileMutation } from "@/api/profile";
 
 interface ProfileModalProps {
   user: {
@@ -56,27 +56,10 @@ const ProfileModal = ({
     }
   };
 
-  const API_URL = import.meta.env.VITE_API_URL;
-  const queryClient = useQueryClient();
-  const updateProfileMutation = useMutation({
-    mutationFn: async ({ pic, token }) => {
-      const response = await fetch(`${API_URL}/api/user/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ pic }),
-      });
-      if (!response.ok) throw new Error('Failed to update profile');
-      return response.json();
-    },
-    onSuccess: (data) => {
-      // update state and show toast
+  const updateProfileMutation = useUpdateProfileMutation({
+    onSuccess: (data: { pic: any; name: any; email: any; }) => {
       const updatedUser = { ...currentUser, pic: data.pic };
       setCurrentUser(updatedUser);
-
-      // Update Zustand store
       if (isOwnProfile && currentUserFromStore) {
         setUser({
           ...currentUserFromStore,
@@ -85,18 +68,14 @@ const ProfileModal = ({
           email: data.email,
         });
       }
-
-      // Step 4: Notify parent component
       if (onProfileUpdate) {
         onProfileUpdate(updatedUser);
       }
-
       toast.success("Profile picture updated successfully!");
-      queryClient.invalidateQueries(['user']);
       setSelectedFile(null);
       setPreviewUrl(null);
     },
-    onError: (error) => {
+    onError: (error: { message: any; }) => {
       toast.error(error.message || 'Failed to update profile picture');
     },
   });
@@ -115,7 +94,10 @@ const ProfileModal = ({
         throw new Error(uploadResult.error || "Image upload failed");
       }
 
-      updateProfileMutation.mutate({ pic: uploadResult.data.url, token: currentUserFromStore?.token });
+      if (!currentUserFromStore?.token) {
+        throw new Error("User token is missing. Please log in again.");
+      }
+      updateProfileMutation.mutate({ pic: uploadResult.data.url, token: currentUserFromStore.token });
 
     } catch (error: any) {
       toast.error(error.message || "Failed to update profile picture");
