@@ -13,7 +13,7 @@ const cors = require("cors");
 const app = express();
 
 const allowedOrigins = [
-  "https://babble-frontend.onrender.com",
+  "https://babblehub.vercel.app",
   // "http://localhost:5173",
 ];
 
