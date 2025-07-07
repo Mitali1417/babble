@@ -1,7 +1,7 @@
 
 export const Footer = () => {
   return (
-    <footer className="fixed bottom-0 inset-x-0 z-10 container mx-auto px-4 py-4 mt-20 bg-card">
+    <footer className="container mx-auto px-4 py-4 mt-20 bg-card">
       <div className="flex justify-center items-center gap-2 md:gap-4 typography">
         <div className="w-16 h-8 flex items-center">
           <img

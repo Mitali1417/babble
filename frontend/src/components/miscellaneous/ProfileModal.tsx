@@ -15,6 +15,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { toast } from "sonner";
 import { api } from "../../utils/api";
 import { useUserStore } from "../../state/userStore";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface ProfileModalProps {
   user: {
@@ -55,37 +56,23 @@ const ProfileModal = ({
     }
   };
 
-  const handleUpdateProfile = async () => {
-    if (!selectedFile) {
-      toast.error("Please select an image first");
-      return;
-    }
-
-    setUploading(true);
-    try {
-      // Step 1: Upload new image to Cloudinary
-      const uploadResult = await api.uploadImage(selectedFile);
-      if (!uploadResult.success || !uploadResult.data) {
-        throw new Error(uploadResult.error || "Image upload failed");
-      }
-
-      // Step 2: Update user profile in backend
-      const response = await fetch(`/api/user/profile`, {
+  const API_URL = import.meta.env.VITE_API_URL;
+  const queryClient = useQueryClient();
+  const updateProfileMutation = useMutation({
+    mutationFn: async ({ pic, token }) => {
+      const response = await fetch(`${API_URL}/api/user/profile`, {
         method: 'PUT',
         headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${currentUserFromStore?.token}`,
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ pic: uploadResult.data.url }),
+        body: JSON.stringify({ pic }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to update profile");
-      }
-
-      const data = await response.json();
-
-      // Step 3: Update local state and Zustand store
+      if (!response.ok) throw new Error('Failed to update profile');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // update state and show toast
       const updatedUser = { ...currentUser, pic: data.pic };
       setCurrentUser(updatedUser);
 
@@ -105,8 +92,31 @@ const ProfileModal = ({
       }
 
       toast.success("Profile picture updated successfully!");
+      queryClient.invalidateQueries(['user']);
       setSelectedFile(null);
       setPreviewUrl(null);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update profile picture');
+    },
+  });
+
+  const handleUpdateProfile = async () => {
+    if (!selectedFile) {
+      toast.error("Please select an image first");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Step 1: Upload new image to Cloudinary
+      const uploadResult = await api.uploadImage(selectedFile);
+      if (!uploadResult.success || !uploadResult.data) {
+        throw new Error(uploadResult.error || "Image upload failed");
+      }
+
+      updateProfileMutation.mutate({ pic: uploadResult.data.url, token: currentUserFromStore?.token });
+
     } catch (error: any) {
       toast.error(error.message || "Failed to update profile picture");
     } finally {

@@ -9,6 +9,7 @@ import UserListItem from "../../pages/userAvatar/UserListItem";
 import { useSearchUsersQuery } from "../../api/chat";
 import { useChatStore } from "../../state/chatStore";
 import { useUserStore } from "../../state/userStore";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface UserBadgeItemProps {
   user: any;
@@ -50,43 +51,35 @@ const UpdateGroupChatModal = ({
   const user = useUserStore((s) => s.user);
   const { selectedChat, setSelectedChat } = useChatStore();
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   // Use the new API hook
   const { data: searchResult = [], isLoading } = useSearchUsersQuery(search);
 
-  const handleRename = async () => {
-    if (!groupChatName.trim()) {
-      toast.warning("Please enter a group name");
-      return;
-    }
-    try {
-      setRenameLoading(true);
-      const response = await fetch(`/api/chat/rename`, {
-        method: "PUT",
+  const queryClient = useQueryClient();
+  const renameGroupMutation = useMutation({
+    mutationFn: async ({ chatId, chatName, token }) => {
+      const response = await fetch(`${API_URL}/api/chat/rename`, {
+        method: 'PUT',
         headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${user?.token}`,
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          chatId: selectedChat?._id,
-          chatName: groupChatName,
-        }),
+        body: JSON.stringify({ chatId, chatName }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to rename group");
-      }
-
-      const data = await response.json();
+      if (!response.ok) throw new Error('Failed to rename group');
+      return response.json();
+    },
+    onSuccess: (data) => {
       setSelectedChat(data);
       setFetchAgain(!fetchAgain);
-      toast.success("Group name updated successfully");
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Rename failed");
-    } finally {
-      setRenameLoading(false);
-      setGroupChatName("");
-    }
-  };
+      toast.success('Group name updated successfully');
+      queryClient.invalidateQueries(['chats']);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Rename failed');
+    },
+  });
 
   const handleAddUser = async (user1: any) => {
     if (selectedChat?.users.find((u: any) => u._id === user1._id)) {
@@ -98,7 +91,7 @@ const UpdateGroupChatModal = ({
       return;
     }
     try {
-      const response = await fetch(`/api/chat/groupadd`, {
+      const response = await fetch(`${API_URL}/api/chat/groupadd`, {
         method: "PUT",
         headers: {
           "Content-type": "application/json",
@@ -129,7 +122,7 @@ const UpdateGroupChatModal = ({
       return;
     }
     try {
-      const response = await fetch(`/api/chat/groupremove`, {
+      const response = await fetch(`${API_URL}/api/chat/groupremove`, {
         method: "PUT",
         headers: {
           "Content-type": "application/json",
