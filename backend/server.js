@@ -9,22 +9,21 @@ const messageRoutes = require("./routes/messageRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const path = require("path");
+const cors = require("cors");
 
 connectDB();
 const app = express();
 
-// CORS middleware
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
+const allowedOrigins = [
+  "https://babble-frontend.onrender.com",
+  // "http://localhost:5173",
+];
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 app.use(express.json()); // to accept json data
 
@@ -69,9 +68,8 @@ const server = app.listen(
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: process.env.FRONTEND_API_URL,
-    // origin: "http://localhost:5173",
-    // credentials: true,
+    origin: allowedOrigins,
+    credentials: true,
   },
 });
 
