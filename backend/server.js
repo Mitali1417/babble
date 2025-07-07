@@ -10,14 +10,15 @@ const uploadRoutes = require("./routes/uploadRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const path = require("path");
 const cors = require("cors");
-
-connectDB();
 const app = express();
 
 const allowedOrigins = [
   "https://babble-frontend.onrender.com",
   // "http://localhost:5173",
 ];
+
+connectDB();
+
 app.use(
   cors({
     origin: allowedOrigins,

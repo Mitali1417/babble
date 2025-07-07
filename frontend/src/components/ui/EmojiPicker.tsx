@@ -1,5 +1,6 @@
 import React from "react";
-import { Picker } from "emoji-mart";
+import Picker from '@emoji-mart/react';
+import data from '@emoji-mart/data';
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Smile } from "lucide-react";
 import { Button } from "./button";
@@ -26,14 +27,14 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect }) => {
       </PopoverTrigger>
       <PopoverContent align="end" className="p-0 w-auto">
         <Picker
-          set="apple"
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onSelect={(emoji: any) => {
+          data={data}
+          onEmojiSelect={(emoji: any) => {
             onSelect(emoji.native);
             setOpen(false);
           }}
-          showPreview={false}
-          showSkinTones={false}
+          previewPosition="none"
+          skinTonePosition="none"
+          theme="light" // or "auto" or "dark"
           style={{ border: "none", boxShadow: "none" }}
         />
       </PopoverContent>
