@@ -1,6 +1,5 @@
 import React from "react";
 import { Picker } from "emoji-mart";
-import "emoji-mart/css/emoji-mart.css";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Smile } from "lucide-react";
 import { Button } from "./button";
