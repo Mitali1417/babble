@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type React from "react";
 import { useState } from "react";
 import { Mail, Camera, X, User } from "lucide-react";
@@ -19,8 +20,8 @@ interface ProfileModalProps {
   user: {
     _id: string;
     name: string;
-    email: string;
-    pic: string;
+    email?: string; // allow undefined
+    pic?: string;
   };
   children?: React.ReactNode;
   onProfileUpdate?: (updatedUser: any) => void;
@@ -117,6 +118,7 @@ const ProfileModal = ({
     setSelectedFile(null);
     setPreviewUrl(null);
   };
+  
 
   return (
     <Dialog
@@ -186,7 +188,7 @@ const ProfileModal = ({
             </h3>
             <span className="flex items-center justify-center space-x-2">
               <Mail className="w-4 h-4" />
-              <span>{currentUser.email}</span>
+              <span>{currentUser.email ?? "No email provided"}</span>
             </span>
           </div>
 

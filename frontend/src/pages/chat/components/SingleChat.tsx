@@ -1,40 +1,44 @@
-import type React from "react"
-import { useEffect, useState, useRef } from "react"
-import { Button } from "../../../components/ui/button"
-import { Input } from "../../../components/ui/input"
-import { Avatar, AvatarImage, AvatarFallback } from "../../../components/ui/avatar"
-import { toast } from "sonner"
-import { getSender, getSenderFull } from "../../../config/ChatLogics"
-import { ArrowLeft, Send, MoreVertical, Users, User, Phone, Video } from "lucide-react"
-import ProfileModal from "../../../components/miscellaneous/ProfileModal"
-import ScrollableChat from "./ScrollableChat"
-import Lottie from "react-lottie"
-import animationData from "../../../animations/typing.json"
-import io from "socket.io-client"
-import UpdateGroupChatModal from "../../../components/miscellaneous/UpdateGroupChatModal"
-import { useMessagesQuery, useSendMessageMutation } from "../../../api/message"
-import { useChatStore } from "../../../state/chatStore"
-import { useUserStore } from "../../../state/userStore"
-import { EmojiPicker } from "../../../components/ui/EmojiPicker"
-import { useNotifications } from "../../../hooks/useNotifications"
-import { useBgStore } from "@/state/bgStore"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type React from "react";
+import { useEffect, useState, useRef } from "react";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "../../../components/ui/avatar";
+import { toast } from "sonner";
+import { getSender, getSenderFull } from "../../../config/ChatLogics";
+import { ArrowLeft, Send, MoreVertical, Users, User } from "lucide-react";
+import ProfileModal from "../../../components/miscellaneous/ProfileModal";
+import ScrollableChat from "./ScrollableChat";
+import Lottie from "react-lottie";
+import animationData from "../../../animations/typing.json";
+import io from "socket.io-client";
+import UpdateGroupChatModal from "../../../components/miscellaneous/UpdateGroupChatModal";
+import { useMessagesQuery, useSendMessageMutation } from "../../../api/message";
+import { useChatStore } from "../../../state/chatStore";
+import { useUserStore } from "../../../state/userStore";
+import { EmojiPicker } from "../../../components/ui/EmojiPicker";
+import { useNotifications } from "../../../hooks/useNotifications";
+import { useBgStore } from "@/state/bgStore";
 
-const ENDPOINT = import.meta.env.VITE_API_URL
-let socket: any
-let selectedChatCompare: any
+const ENDPOINT = import.meta.env.VITE_API_URL;
+let socket: any;
+let selectedChatCompare: any;
 
 interface SingleChatProps {
-  fetchAgain: boolean
-  setFetchAgain: (value: boolean) => void
-  onOpenSidebar?: () => void
+  fetchAgain: boolean;
+  setFetchAgain: (value: boolean) => void;
 }
 
-const SingleChat = ({ fetchAgain, setFetchAgain, onOpenSidebar }: SingleChatProps) => {
-  const [newMessage, setNewMessage] = useState("")
-  const [socketConnected, setSocketConnected] = useState(false)
-  const [typing, setTyping] = useState(false)
-  const [istyping, setIsTyping] = useState(false)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
+  const [newMessage, setNewMessage] = useState("");
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [istyping, setIsTyping] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const defaultOptions = {
     loop: true,
@@ -43,108 +47,139 @@ const SingleChat = ({ fetchAgain, setFetchAgain, onOpenSidebar }: SingleChatProp
     rendererSettings: {
       preserveAspectRatio: "xMidYMid slice",
     },
-  }
+  };
 
-  const user = useUserStore((s) => s.user)
-  const { selectedChat, setSelectedChat, notification, setNotification, incrementUnread } = useChatStore()
-  const { requestPermission, showNotification } = useNotifications()
-  const { backgroundImage, isBgLoaded } = useBgStore()
+  const user = useUserStore((s) => s.user);
+  const {
+    selectedChat,
+    setSelectedChat,
+    notification,
+    setNotification,
+    incrementUnread,
+  } = useChatStore();
+  const { requestPermission, showNotification } = useNotifications();
+  const { backgroundImage, isBgLoaded } = useBgStore();
 
   // Use the new API hooks
-  const { data: messages = [], isLoading } = useMessagesQuery(selectedChat?._id || "")
-  const sendMessageMutation = useSendMessageMutation(selectedChat?._id || "")
+  const { data: messages = [], isLoading } = useMessagesQuery(
+    selectedChat?._id || ""
+  );
+  const sendMessageMutation = useSendMessageMutation(selectedChat?._id || "");
 
   const sendMessage = async (event?: React.KeyboardEvent<HTMLInputElement>) => {
-    const messageToSend = newMessage
-    if ((event && event.key === "Enter" && messageToSend) || (!event && messageToSend)) {
-      socket.emit("stop typing", selectedChat?._id)
+    const messageToSend = newMessage;
+    if (
+      (event && event.key === "Enter" && messageToSend) ||
+      (!event && messageToSend)
+    ) {
+      socket.emit("stop typing", selectedChat?._id);
       try {
-        setNewMessage("")
-        const data = await sendMessageMutation.mutateAsync(messageToSend)
-        socket.emit("new message", data)
-        if (audioRef.current) audioRef.current.play()
+        setNewMessage("");
+        const data = await sendMessageMutation.mutateAsync(messageToSend);
+        socket.emit("new message", data);
+        if (audioRef.current) audioRef.current.play();
       } catch (error: any) {
-        toast.error(error?.response?.data?.message || "Failed to send the message")
-        setNewMessage(messageToSend)
+        toast.error(
+          error?.response?.data?.message || "Failed to send the message"
+        );
+        setNewMessage(messageToSend);
       }
-    } else if ((event && event.key === "Enter" && !messageToSend) || (!event && !messageToSend)) {
-      toast.info("Please enter a message before sending")
+    } else if (
+      (event && event.key === "Enter" && !messageToSend) ||
+      (!event && !messageToSend)
+    ) {
+      toast.info("Please enter a message before sending");
     }
-  }
+  };
 
   useEffect(() => {
-    socket = io(ENDPOINT)
-    socket.emit("setup", user)
-    socket.on("connected", () => setSocketConnected(true))
+    socket = io(ENDPOINT);
+    socket.emit("setup", user);
+    socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", (payload: { userId: string }) => {
-      if (payload && payload.userId !== user?._id) setIsTyping(true)
-    })
-    socket.on("stop typing", () => setIsTyping(false))
-  }, [user])
+      if (payload && payload.userId !== user?._id) setIsTyping(true);
+    });
+    socket.on("stop typing", () => setIsTyping(false));
+  }, [user]);
 
   useEffect(() => {
     if (selectedChat?._id) {
-      socket.emit("join chat", selectedChat._id)
-      selectedChatCompare = selectedChat
+      socket.emit("join chat", selectedChat._id);
+      selectedChatCompare = selectedChat;
     }
-  }, [selectedChat])
+  }, [selectedChat]);
 
   useEffect(() => {
-    requestPermission()
-  }, [requestPermission])
+    requestPermission();
+  }, [requestPermission]);
 
   useEffect(() => {
     socket?.on("message recieved", (newMessageRecieved: any) => {
-      const isWindowFocused = document.hasFocus()
-      if (!selectedChatCompare || selectedChatCompare._id !== newMessageRecieved.chat._id) {
+      const isWindowFocused = document.hasFocus();
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMessageRecieved.chat._id
+      ) {
         if (!notification.includes(newMessageRecieved)) {
-          setNotification([newMessageRecieved, ...notification])
-          setFetchAgain(!fetchAgain)
-          incrementUnread(newMessageRecieved.chat._id)
+          setNotification([newMessageRecieved, ...notification]);
+          setFetchAgain(!fetchAgain);
+          incrementUnread(newMessageRecieved.chat._id);
           if (!isWindowFocused) {
             showNotification(
               newMessageRecieved.chat.isGroupChat
                 ? `New message in ${newMessageRecieved.chat.chatName}`
-                : `New message from ${newMessageRecieved.sender?.name || "User"}`,
+                : `New message from ${
+                    newMessageRecieved.sender?.name || "User"
+                  }`,
               {
                 body: newMessageRecieved.content,
                 icon: newMessageRecieved.sender?.pic || "/logo.svg",
-              },
-            )
+              }
+            );
           }
         }
       } else {
-        if (audioRef.current) audioRef.current.play()
+        if (audioRef.current) audioRef.current.play();
       }
-    })
-  }, [notification, setNotification, setFetchAgain, fetchAgain, incrementUnread, showNotification])
+    });
+  }, [
+    notification,
+    setNotification,
+    setFetchAgain,
+    fetchAgain,
+    incrementUnread,
+    showNotification,
+  ]);
 
   const typingHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewMessage(e.target.value)
-    if (!socketConnected) return
+    setNewMessage(e.target.value);
+    if (!socketConnected) return;
 
     if (!typing) {
-      setTyping(true)
-      socket.emit("typing", { chatId: selectedChat?._id, userId: user?._id })
+      setTyping(true);
+      socket.emit("typing", { chatId: selectedChat?._id, userId: user?._id });
     }
-    const lastTypingTime = new Date().getTime()
-    const timerLength = 3000
+    const lastTypingTime = new Date().getTime();
+    const timerLength = 3000;
     setTimeout(() => {
-      const timeNow = new Date().getTime()
-      const timeDiff = timeNow - lastTypingTime
+      const timeNow = new Date().getTime();
+      const timeDiff = timeNow - lastTypingTime;
       if (timeDiff >= timerLength && typing) {
         socket.emit("stop typing", {
           chatId: selectedChat?._id,
           userId: user?._id,
-        })
-        setTyping(false)
+        });
+        setTyping(false);
       }
-    }, timerLength)
-  }
+    }, timerLength);
+  };
 
-  if (!selectedChat) return null
+  if (!user) return null;
+  if (!selectedChat) return null;
 
-  const chatPartner = !selectedChat.isGroupChat ? getSenderFull(user, selectedChat.users) : null
+  const chatPartner = !selectedChat.isGroupChat
+    ? getSenderFull(user, selectedChat.users)
+    : null;
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -174,18 +209,25 @@ const SingleChat = ({ fetchAgain, setFetchAgain, onOpenSidebar }: SingleChatProp
             <ArrowLeft className="w-5 h-5" />
           </Button>
 
-          {!selectedChat.isGroupChat ? (
+          {chatPartner && !selectedChat.isGroupChat ? (
             <ProfileModal user={chatPartner}>
               <div className="flex items-center space-x-3 cursor-pointer hover:bg-muted/30 rounded-lg p-2 -m-2 transition-colors">
                 <Avatar className="w-10 h-10 border-2 border-background">
-                  <AvatarImage src={chatPartner?.pic || "/placeholder.svg"} alt={chatPartner?.name} />
+                  <AvatarImage
+                    src={chatPartner?.pic || "/placeholder.svg"}
+                    alt={chatPartner?.name}
+                  />
                   <AvatarFallback className="bg-muted text-muted-foreground font-semibold">
                     {chatPartner?.name?.[0]?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-semibold text-base truncate">{getSender(user, selectedChat.users)}</h3>
-                  <p className="text-sm text-muted-foreground">Tap to view profile</p>
+                  <h3 className="font-semibold text-base truncate">
+                    {getSender(user, selectedChat.users)}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Tap to view profile
+                  </p>
                 </div>
               </div>
             </ProfileModal>
@@ -195,8 +237,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain, onOpenSidebar }: SingleChatProp
                 <Users className="w-5 h-5 text-muted-foreground" />
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-base truncate">{selectedChat.chatName}</h3>
-                <p className="text-sm text-muted-foreground">{selectedChat.users.length} members</p>
+                <h3 className="font-semibold text-base truncate">
+                  {selectedChat.chatName}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {selectedChat.users.length} members
+                </p>
               </div>
             </div>
           )}
@@ -204,15 +250,27 @@ const SingleChat = ({ fetchAgain, setFetchAgain, onOpenSidebar }: SingleChatProp
 
         {/* Right Section - Action Buttons */}
         <div className="flex items-center space-x-1">
-          {!selectedChat.isGroupChat ? (
+          {!selectedChat.isGroupChat && chatPartner ? (
             <ProfileModal user={chatPartner}>
-              <Button variant="ghost" size="sm" className="p-2 hover:bg-muted/50 rounded-full">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2 hover:bg-muted/50 rounded-full"
+              >
                 <User className="w-5 h-5" />
               </Button>
             </ProfileModal>
           ) : (
-            <UpdateGroupChatModal fetchMessages={() => {}} fetchAgain={fetchAgain} setFetchAgain={setFetchAgain}>
-              <Button variant="ghost" size="sm" className="p-2 hover:bg-muted/50 rounded-full">
+            <UpdateGroupChatModal
+              fetchMessages={() => {}}
+              fetchAgain={fetchAgain}
+              setFetchAgain={setFetchAgain}
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                className="p-2 hover:bg-muted/50 rounded-full"
+              >
                 <MoreVertical className="w-5 h-5" />
               </Button>
             </UpdateGroupChatModal>
@@ -242,7 +300,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain, onOpenSidebar }: SingleChatProp
           <div className="bg-white rounded-full p-2 shadow-sm">
             <Lottie options={defaultOptions} width={24} height={12} />
           </div>
-          <span className="text-sm text-muted-foreground">Someone is typing...</span>
+          <span className="text-sm text-muted-foreground">
+            Someone is typing...
+          </span>
         </div>
       )}
 
@@ -251,7 +311,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain, onOpenSidebar }: SingleChatProp
         <div className="flex items-end space-x-3">
           {/* Emoji Picker */}
           <div className="pb-2">
-            <EmojiPicker onSelect={(emoji) => setNewMessage((prev) => prev + emoji)} />
+            <EmojiPicker
+              onSelect={(emoji) => setNewMessage((prev) => prev + emoji)}
+            />
           </div>
 
           {/* Message Input */}
@@ -282,7 +344,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain, onOpenSidebar }: SingleChatProp
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SingleChat
+export default SingleChat;

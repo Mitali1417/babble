@@ -1,25 +1,20 @@
-import { useState } from "react"
-import { toast } from "sonner"
-import { Users, Search, X } from "lucide-react"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Badge } from "../ui/badge"
-import { Card } from "../ui/card"
-import { Separator } from "../ui/separator"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog"
-import UserListItem from "../../pages/userAvatar/UserListItem"
-import { useSearchUsersQuery } from "../../api/chat"
-import { useUserStore } from "../../state/userStore"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
+import { toast } from "sonner";
+import { Users, Search, X } from "lucide-react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Card } from "../ui/card";
+import { Separator } from "../ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import UserListItem from "../../pages/userAvatar/UserListItem";
+import { useSearchUsersQuery } from "../../api/chat";
+import { useUserStore } from "../../state/userStore";
 
 interface UserBadgeItemProps {
-  user: any
-  handleFunction: () => void
+  user: any;
+  handleFunction: () => void;
 }
 
 const UserBadgeItem = ({ user, handleFunction }: UserBadgeItemProps) => (
@@ -32,75 +27,78 @@ const UserBadgeItem = ({ user, handleFunction }: UserBadgeItemProps) => (
       <X className="w-3 h-3" />
     </button>
   </div>
-)
+);
 
 interface GroupChatModalProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 const GroupChatModal = ({ children }: GroupChatModalProps) => {
-  const [open, setOpen] = useState(false)
-  const [groupChatName, setGroupChatName] = useState("")
-  const [selectedUsers, setSelectedUsers] = useState<any[]>([])
-  const [search, setSearch] = useState("")
+  const [open, setOpen] = useState(false);
+  const [groupChatName, setGroupChatName] = useState("");
+  const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
 
-  const user = useUserStore((s) => s.user)
+  const user = useUserStore((s) => s.user);
 
   // Use the new API hook
-  const { data: searchResult = [], isLoading } = useSearchUsersQuery(search)
+  const { data: searchResult = [], isLoading } = useSearchUsersQuery(search);
 
   const handleGroup = (userToAdd: any) => {
     if (selectedUsers.find((u) => u._id === userToAdd._id)) {
-      toast.warning("User already added")
-      return
+      toast.warning("User already added");
+      return;
     }
-    setSelectedUsers([...selectedUsers, userToAdd])
-    toast.success(`${userToAdd.name} added to group`)
-  }
+    setSelectedUsers([...selectedUsers, userToAdd]);
+    toast.success(`${userToAdd.name} added to group`);
+  };
 
   const handleDelete = (delUser: any) => {
-    setSelectedUsers(selectedUsers.filter((sel) => sel._id !== delUser._id))
-  }
+    setSelectedUsers(selectedUsers.filter((sel) => sel._id !== delUser._id));
+  };
 
   const handleSubmit = async () => {
     if (!groupChatName.trim()) {
-      toast.warning("Please enter a group name")
-      return
+      toast.warning("Please enter a group name");
+      return;
     }
     if (selectedUsers.length < 2) {
-      toast.warning("Please select at least 2 users for a group chat")
-      return
+      toast.warning("Please select at least 2 users for a group chat");
+      return;
     }
     try {
-      const config = { headers: { Authorization: `Bearer ${user?.token}` } }
+      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
       const { data } = await fetch(`/api/chat/group`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          ...config.headers
+          "Content-Type": "application/json",
+          ...config.headers,
         },
         body: JSON.stringify({
           name: groupChatName,
           users: JSON.stringify(selectedUsers.map((u) => u._id)),
-        })
-      }).then(res => res.json())
-      
-      setOpen(false)
-      toast.success("Group chat created successfully!")
+        }),
+      }).then((res) => res.json());
+      console.log(data);
+
+      setOpen(false);
+      toast.success("Group chat created successfully!");
       // Reset form
-      setGroupChatName("")
-      setSelectedUsers([])
-      setSearch("")
+      setGroupChatName("");
+      setSelectedUsers([]);
+      setSearch("");
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Failed to create group chat")
+      toast.error(
+        error?.response?.data?.message || "Failed to create group chat"
+      );
     }
-  }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
+      e.preventDefault();
     }
-  }
+  };
 
   return (
     <>
@@ -122,9 +120,7 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
           <div className="space-y-6 py-4">
             {/* Group Name Input */}
             <div className="space-y-2">
-              <Label htmlFor="group-name">
-                Group Name
-              </Label>
+              <Label htmlFor="group-name">Group Name</Label>
               <Input
                 id="group-name"
                 placeholder="Enter group name..."
@@ -152,7 +148,9 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
               {selectedUsers.length > 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Selected Members ({selectedUsers.length})</span>
+                    <span className="text-sm font-medium">
+                      Selected Members ({selectedUsers.length})
+                    </span>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -161,11 +159,15 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
                       Clear All
                     </Button>
                   </div>
-                  <Badge className="flex flex-wrap gap-2 p-3 max-h-32 overflow-y-auto">
+                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
                     {selectedUsers.map((u) => (
-                      <UserBadgeItem key={u._id} user={u} handleFunction={() => handleDelete(u)} />
+                      <UserBadgeItem
+                        key={u._id}
+                        user={u}
+                        handleFunction={() => handleDelete(u)}
+                      />
                     ))}
-                  </Badge>
+                  </div>
                 </div>
               )}
 
@@ -175,20 +177,28 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
                   <div className="flex items-center justify-center py-8">
                     <div className="flex flex-col items-center space-y-2">
                       <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                      <p className="text-sm text-gray-500">Searching users...</p>
+                      <p className="text-sm text-gray-500">
+                        Searching users...
+                      </p>
                     </div>
                   </div>
                 ) : searchResult.length > 0 ? (
                   <div className="space-y-1 max-h-60 overflow-y-auto">
                     <p className="mb-2">
-                      Found {searchResult.length} user{searchResult.length !== 1 ? "s" : ""}
+                      Found {searchResult.length} user
+                      {searchResult.length !== 1 ? "s" : ""}
                     </p>
                     {searchResult.slice(0, 6).map((user: any) => (
-                      <UserListItem key={user._id} user={user} handleFunction={() => handleGroup(user)} />
+                      <UserListItem
+                        key={user._id}
+                        user={user}
+                        handleFunction={() => handleGroup(user)}
+                      />
                     ))}
                     {searchResult.length > 6 && (
                       <p className="text-xs text-center py-2">
-                        Showing first 6 results. Refine your search for more specific results.
+                        Showing first 6 results. Refine your search for more
+                        specific results.
                       </p>
                     )}
                   </div>
@@ -196,13 +206,19 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
                   <Card className="flex flex-col items-center justify-center py-8">
                     <Search className="w-12 h-12 mb-2" />
                     <p className="text-sm">No users found</p>
-                    <p className="text-xs">Try searching with a different term</p>
+                    <p className="text-xs">
+                      Try searching with a different term
+                    </p>
                   </Card>
                 ) : (
                   <Card className="flex flex-col items-center justify-center py-8">
                     <Users className="w-12 h-12 mb-2" />
-                    <p className="text-sm">Search for users to add to your group</p>
-                    <p className="text-xs">Type a name or email to get started</p>
+                    <p className="text-sm">
+                      Search for users to add to your group
+                    </p>
+                    <p className="text-xs">
+                      Type a name or email to get started
+                    </p>
                   </Card>
                 )}
               </div>
@@ -211,16 +227,12 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
             <Separator />
 
             <div className="flex justify-end space-x-3">
-              <Button
-                variant="outline"
-                onClick={() => setOpen(false)}
-              >
+              <Button variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={!groupChatName.trim() || selectedUsers.length < 2}
-                className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
               >
                 Create Group
               </Button>
@@ -229,7 +241,7 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
         </DialogContent>
       </Dialog>
     </>
-  )
-}
+  );
+};
 
-export default GroupChatModal
+export default GroupChatModal;

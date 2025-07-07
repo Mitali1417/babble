@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Plus, Users, User, Search, X } from "lucide-react";
 import { Button } from "../../../components/ui/button";
@@ -22,6 +23,7 @@ interface MyChatsProps {
 const MyChats = ({ onClose }: MyChatsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const user = useUserStore((s) => s.user);
+  if (!user) return null; // or a loading spinner if preferred
   const { selectedChat, setSelectedChat, unreadCounts, clearUnread } =
     useChatStore();
 

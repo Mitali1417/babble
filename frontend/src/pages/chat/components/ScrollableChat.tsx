@@ -33,7 +33,7 @@ const ScrollableChat = ({ messages }: ScrollableChatProps) => {
         messages.map((m, i) => (
           <div key={m._id} className="flex items-end space-x-2">
             {/* Avatar */}
-            {(isSameSender(messages, m, i, user?._id) || isLastMessage(messages, i, user?._id)) && (
+            {(isSameSender(messages, m, i, user?._id || "") || isLastMessage(messages, i, user?._id || "")) && (
               <div className="flex-shrink-0 mb-1">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={m.sender.pic || "/placeholder.svg"} alt={m.sender.name} />
@@ -52,7 +52,7 @@ const ScrollableChat = ({ messages }: ScrollableChatProps) => {
                   : "bg-muted border rounded-tl-none"
               }`}
               style={{
-                marginLeft: isSameSenderMargin(messages, m, i, user?._id),
+                marginLeft: isSameSenderMargin(messages, m, i, user?._id || ""),
                 marginTop: isSameUser(messages, m, i) ? 2 : 8,
                 alignSelf: m.sender._id === user?._id ? "flex-end" : "flex-start",
               }}

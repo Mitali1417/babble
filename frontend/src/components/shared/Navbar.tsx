@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,7 +8,7 @@ import {
 } from "../ui/dropdown-menu";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
-import { Search, Bell, ChevronDown, LogOut, Settings } from "lucide-react";
+import { Bell, ChevronDown, LogOut } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import ProfileModal from "../miscellaneous/ProfileModal";
@@ -146,16 +147,18 @@ export const Navbar = () => {
             </div>
             <DropdownMenuSeparator className="bg-white/20 dark:bg-slate-700/50" />
 
-            <ProfileModal
-              user={user!}
-              onProfileUpdate={handleProfileUpdate}
-              isOwnProfile={true}
-            >
-              {/* <DropdownMenuItem className="cursor-pointer hover:bg-white/20 dark:hover:bg-slate-800/50 transition-colors">
-                <User className="w-4 h-4 mr-2" />
-                View Profile
-              </DropdownMenuItem> */}
-            </ProfileModal>
+            {user && (
+              <ProfileModal
+                user={user}
+                onProfileUpdate={handleProfileUpdate}
+                isOwnProfile={true}
+              >
+                {/* <DropdownMenuItem className="cursor-pointer hover:bg-white/20 dark:hover:bg-slate-800/50 transition-colors">
+                  <User className="w-4 h-4 mr-2" />
+                  View Profile
+                </DropdownMenuItem> */}
+              </ProfileModal>
+            )}
 
             {/* <DropdownMenuItem className="cursor-pointer hover:bg-white/20 dark:hover:bg-slate-800/50 transition-colors">
               <Settings className="w-4 h-4 mr-2" />

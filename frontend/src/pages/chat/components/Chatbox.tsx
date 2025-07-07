@@ -16,7 +16,7 @@ const Chatbox = ({ fetchAgain, setFetchAgain, onOpenSidebar }: ChatboxProps) => 
   return (
     <Card className="h-full overflow-hidden bg-card/40 backdrop-blur-xl py-0">
       {selectedChat ? (
-        <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} onOpenSidebar={onOpenSidebar} />
+        <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
       ) : (
         <div className="h-full flex flex-col items-center justify-center p-4 sm:p-8 typography relative">
           {/* Mobile menu button */}
