@@ -105,14 +105,14 @@ const GroupChatModal = ({ children }: GroupChatModalProps) => {
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2 text-2xl">
-              <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center">
                 <Users className="w-4 h-4 text-white" />
               </div>
-              <span>Create Group Chat</span>
+              <span className="font-open-sans font-semibold">Create Group Chat</span>
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-6 py-4 typography">
             {/* Group Name Input */}
             <div className="space-y-2">
               <Label htmlFor="group-name">Group Name</Label>
