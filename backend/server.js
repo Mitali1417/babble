@@ -13,8 +13,8 @@ const cors = require("cors");
 const app = express();
 
 const allowedOrigins = [
-  // "https://babblehub.vercel.app",
-  "http://localhost:5173",
+  "https://babblehub.vercel.app",
+  // "http://localhost:5173",
 ];
 
 connectDB();
