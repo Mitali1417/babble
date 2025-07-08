@@ -22,7 +22,7 @@ connectDB();
 app.use(
   cors({
     origin: allowedOrigins,
-    credentials: true,
+    // credentials: true,
   })
 );
 
