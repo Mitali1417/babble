@@ -95,17 +95,17 @@ function Homepage() {
                     <div
                       className={`w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-3`}
                     >
-                      <feature.icon className="w-5 h-5 text-white" />
+                      <feature.icon className="w-5 h-5 text-foreground" />
                     </div>
                     <h3>{feature.title}</h3>
-                    <p>{feature.description}</p>
+                    <p className="!text-xs xl:!text-sm">{feature.description}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="flex justify-center w-full">
-              <Card className="inverted-radius w-full max-w-md">
+            <div className="flex justify-center items-center w-full">
+              <Card className="inverted-radius bg-[#eeecec] dark:bg-[#141414] w-full max-w-md h-fit">
                 <CardHeader className="text-center">
                   <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mx-auto shadow-lg">
                     <Lock className="w-8 h-8" />

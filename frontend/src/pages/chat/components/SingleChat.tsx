@@ -287,7 +287,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
             </div>
           </div>
         ) : (
-          <div className="h-full p-4">
+          <div className="h-full px-2 md:px-4">
             <ScrollableChat messages={messages} />
           </div>
         )}

@@ -71,13 +71,14 @@ function SearchBar() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="pl-10 h-12"
+                  className="pl-10"
                 />
               </div>
               <Button
+              size={"sm"}
                 onClick={onSearch}
                 disabled={isLoading}
-                className="px-6 h-12 btn-gradient hover:shadow-lg transition-all duration-300"
+                className="px-6 hover:shadow-lg transition-all duration-300"
               >
                 {isLoading ? (
                   <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" />
@@ -102,7 +103,7 @@ function SearchBar() {
                 </div>
               ) : searchResult.length > 0 ? (
                 <>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                  <p className="text-sm text-muted-foreground font-medium">
                     Found {searchResult.length} user
                     {searchResult.length !== 1 ? "s" : ""}
                   </p>
