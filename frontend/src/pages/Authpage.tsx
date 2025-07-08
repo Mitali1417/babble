@@ -50,9 +50,9 @@ function Homepage() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="relative z-10 container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen flex flex-col container mx-auto max-w-7xl">
+      <header className="relative z-10 w-full mx-auto px-4 py-6">
+        <div className="flex items-center justify-between select-none">
           <div className="w-12 h-12">
             <img
               src="/logo.svg"
@@ -69,7 +69,7 @@ function Homepage() {
       <main className="flex-1">
         <div className="relative z-10 container mx-auto px-4 py-8">
           <div className="grid lg:grid-cols-2 lg:gap-12 max-w-7xl mx-auto">
-            <div className="typography space-y-8">
+            <div className="typography space-y-8  select-none">
               <div className="flex flex-col sm:flex-row lg:flex-col space-y-6">
                 <img
                   src="/bg-frames/Frame4.svg"

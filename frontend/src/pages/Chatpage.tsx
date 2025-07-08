@@ -12,7 +12,7 @@ const Chatpage = () => {
   const { selectedChat } = useChatStore()
 
   return (
-    <div className="relative min-h-screen">
+    <div className="container mx-auto max-w-7xl relative min-h-screen">
       <div className="relative z-10">
         <Navbar />
         <div className="flex h-[calc(100vh-80px)] max-w-7xl mx-auto">
