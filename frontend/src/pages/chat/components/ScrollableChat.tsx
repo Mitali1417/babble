@@ -37,19 +37,19 @@ const ScrollableChat = ({ messages }: ScrollableChatProps) => {
               <div className="flex-shrink-0 mb-1">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={m.sender.pic || "/placeholder.svg"} alt={m.sender.name} />
-                  <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
+                  <AvatarFallback className="bg-muted text-muted-foreground text-xs">
                     {m.sender.name[0]?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </div>
             )}
 
-            {/* Message Bubble */}
+            {/* Message Bubble */}  
             <div
-              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl shadow-sm break-words ${
+              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl border break-words ${
                 m.sender._id === user?._id
-                  ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white ml-auto rounded-tr-none"
-                  : "bg-muted border rounded-tl-none"
+                  ? "bg-background border-muted-foreground/30 backdrop-blur-3xl text-primary border ml-auto rounded-tr-none"
+                  : "bg-muted rounded-tl-none"
               }`}
               style={{
                 marginLeft: isSameSenderMargin(messages, m, i, user?._id || ""),
@@ -59,7 +59,7 @@ const ScrollableChat = ({ messages }: ScrollableChatProps) => {
             >
               {/* Sender name for group chats */}
               {m.sender._id !== user?._id && !isSameUser(messages, m, i) && (
-                <div className="text-xs font-medium text-gray-500 mb-1">{m.sender.name}</div>
+                <div className="text-xs font-medium text-muted-foreground mb-1">{m.sender.name}</div>
               )}
 
               {/* Message content */}
@@ -68,7 +68,7 @@ const ScrollableChat = ({ messages }: ScrollableChatProps) => {
               {/* Timestamp and Read Receipts */}
               <div className="flex items-center gap-2 mt-1">
                 {m.createdAt && (
-                  <span className={`text-xs ${m.sender._id === user?._id ? "text-blue-100" : "text-gray-400"}`}>{formatTime(m.createdAt)}</span>
+                  <span className={`text-xs ${m.sender._id === user?._id ? "text-primary" : "text-muted-foreground"}`}>{formatTime(m.createdAt)}</span>
                 )}
                 {/* Read Receipt: show checkmark if all recipients have seen */}
                 {m.sender._id === user?._id && m.seenBy && (

@@ -50,7 +50,7 @@ function SearchBar() {
           }
         }}
       >
-        <DialogTrigger className="flex items-center space-x-2">
+        <DialogTrigger className="flex items-center space-x-2 cursor-pointer select-none">
           {/* <Button variant="ghost" className="flex items-center space-x-2"> */}
           <Search className="w-5 h-5" />
           <span className="hidden sm:inline">

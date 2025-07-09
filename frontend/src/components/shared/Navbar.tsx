@@ -54,7 +54,7 @@ export const Navbar = () => {
   };
 
   return (
-    <div className="flex items-center justify-between typography md:px-6 py-4 shadow-lg bg-card md:bg-background backdrop-blur-3xl">
+    <div className="flex items-center justify-between typography md:px-6 py-4 shadow-lg bg-card md:bg-background backdrop-blur-3xl select-none">
       <div className="flex w-20 h-8">
         <img src="/bg-frames/Frame4.svg" alt="logo" className="w-full h-full" />
         {/* <img
