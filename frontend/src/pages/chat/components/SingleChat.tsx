@@ -196,7 +196,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       <audio ref={audioRef} src="/message.mp3" preload="auto" />
 
       {/* Mobile-Optimized Chat Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-card/95 backdrop-blur-sm z-10">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-card/95 backdrop-blur-sm z-10 select-none">
         {/* Left Section - Back Button + Avatar + Info */}
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           <Button
@@ -278,12 +278,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-hidden bg-background/50 z-10">
+      <div className="flex-1 overflow-hidden bg-background/50 z-10  select-none">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="flex flex-col items-center space-y-4">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-gray-500 text-sm">Loading messages...</p>
+              <p className="text-muted-foreground text-sm">Loading messages...</p>
             </div>
           </div>
         ) : (
@@ -306,10 +306,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
       )}
 
       {/* Mobile-Optimized Message Input */}
-      <div className="p-4 border-t bg-card/95 backdrop-blur-sm z-10">
-        <div className="flex items-end space-x-3">
+      <div className="p-4 border-t bg-card/95 backdrop-blur-sm z-10 select-none">
+        <div className="flex items-end space-x-1.5 md:space-x-3">
           {/* Emoji Picker */}
-          <div className="pb-2">
+          <div className="pb-1.5">
             <EmojiPicker
               onSelect={(emoji) => setNewMessage((prev) => prev + emoji)}
             />
@@ -332,12 +332,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }: SingleChatProps) => {
           <Button
             onClick={() => sendMessage()}
             disabled={!newMessage.trim() || sendMessageMutation.isPending}
-            className="h-11 w-11 rounded-full p-0 bg-blue-500 hover:bg-blue-600 transition-colors"
+            className="h-11 w-11 rounded-full p-0 bg-primary hover:bg-primary/90 transition-colors"
           >
             {sendMessageMutation.isPending ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
             ) : (
-              <Send className="w-5 h-5 text-white" />
+              <Send className="w-5 h-5 text-primary-foreground" />
             )}
           </Button>
         </div>

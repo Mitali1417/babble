@@ -15,7 +15,7 @@ const Chatpage = () => {
     <div className="container mx-auto max-w-7xl relative min-h-screen">
       <div className="relative z-10">
         <Navbar />
-        <div className="flex h-[calc(100vh-80px)] max-w-7xl mx-auto">
+        <div className="flex h-[calc(100vh-70px)] sm:h-[calc(100vh-80px)] max-w-7xl mx-auto">
           {user && (
             <>
               {/* Mobile Sidebar Overlay */}
@@ -41,7 +41,7 @@ const Chatpage = () => {
               {/* Main Chat Area - Full width on mobile when chat selected */}
               <div
                 className={`
-                flex-1 min-w-0 p-4 lg:pl-0
+                flex-1 min-w-0 p-0 sm:p-4 lg:pl-0
                 ${selectedChat ? "w-full lg:w-auto" : ""}
               `}
               >
